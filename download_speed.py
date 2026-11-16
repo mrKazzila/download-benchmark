@@ -51,6 +51,7 @@ class DownloadResults:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Точка входа."""
     args = _get_args(argv=argv)
 
     try:
@@ -72,9 +73,12 @@ def download_speed(
     url: str,
     timeout: float = 30.0,
 ) -> DownloadResults:
+    """Считываем агрументы cmd."""
     return _measure_download(url=url, timeout=timeout)
 
+
 def _get_args(*, argv: list[str] | None = None):
+    """Считываем агрументы cmd."""
     parser = argparse.ArgumentParser(
         description="Скорость скачивания: 10 последовательных HTTP-запросов",
     )
@@ -96,6 +100,7 @@ def _get_args(*, argv: list[str] | None = None):
 
 
 def _positive_timeout(value: str) -> float:
+    """Валидируем переданный timeout."""
     try:
         timeout = float(value)
     except ValueError as exc:
@@ -110,6 +115,7 @@ def _positive_timeout(value: str) -> float:
 
 
 def _valid_url(value: str) -> str:
+    """Валидируем переданный url."""
     try:
         parsed = urlsplit(value)
         hostname = parsed.hostname
@@ -129,8 +135,10 @@ def _measure_download(
     url: str,
     timeout: float,
 ) -> DownloadResults:
+    """Выполняем запросы на URL."""
     results = DownloadResults()
     items = results.results
+
     headers={
         "User-Agent": "download-speed-check/1.0",
         "Accept-Encoding": "identity",
@@ -166,15 +174,20 @@ def _generate_report(
     url: str,
     results: DownloadResults,
 ) -> None:
+    """Выводим информацию о загрузке."""
     total_bytes = results.total_bytes
     average_seconds = results.average_seconds
     speed_mib_s = results.speed_mib_s
 
-    print(f"URL: {url}")
-    print(f"Запросов: {results.total_items_count} (последовательно)")
-    print(f"Среднее время запроса: {average_seconds:.3f} с")
-    print(f"Скачано: {total_bytes} Б ({total_bytes / MIB:.2f} МиБ)")
-    print(f"Средняя скорость скачивания: {speed_mib_s:.2f} МиБ/с")
+    report_msg = (
+        f"\nURL: {url}\n"
+        f"Запросов: {results.total_items_count} (последовательно)\n"
+        f"Среднее время запроса: {average_seconds:.3f} с\n"
+        f"Скачано: {total_bytes} Б ({total_bytes / MIB:.2f} МиБ)\n"
+        f"Средняя скорость скачивания: {speed_mib_s:.2f} МиБ/с\n"
+    )
+
+    print(report_msg)
 
     return None
 
